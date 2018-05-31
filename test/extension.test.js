@@ -11,16 +11,65 @@ function clearCurrentDocument() {
 
         const fullRange = new vscode.Range(
             vscode.window.activeTextEditor.document.positionAt(0),
-            vscode.window.activeTextEditor.document.positionAt(fullText.length - 1)
+            vscode.window.activeTextEditor.document.positionAt(fullText.length)
         )
 
         editBuilder.delete(fullRange);
     });
 }
 
+
+// I'm so so sorry.
 /**
- * This is ugly AF, but unfortunately nesting these statements in a .then() chain fails. This
- * nasty work around is indeed nasty, I'm sorry you have to see it.
+ * In order to run these tests completely we will open a new document or clear the current one
+ *
+ * This odd mixture of promises and intervals is just to avoid a message that comes up frequently
+ * if you use only promises, "window has already been disposed" it's almost certainly something
+ * I'm doing wrong, but this fixes the issue 95% of the time
+ */
+function setupEditorForTest() {
+    return new Promise((resolve, reject) => {
+        let step = 0;
+        let waiting = 0;
+        let currentDocument = null;
+
+        let interval = setInterval(() => {
+            if (waiting) return null;
+            if (step === 0) {
+                waiting = true;
+                if (vscode.window) {
+                    step += 1
+                }
+                waiting = false;
+            } else if (step === 1) {
+                waiting = true;
+                if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document) {
+                    clearInterval(interval);
+                    clearCurrentDocument().then(resolve);
+                } else {
+                    vscode.workspace.openTextDocument().then((document) => {
+                        step += 1;
+                        currentDocument = document;
+                        waiting = false;
+                    }, reject);
+                }
+            } else if (step === 2) {
+                waiting = true;
+                vscode.window.showTextDocument(currentDocument).then(editor => {
+                    step += 1;
+                    waiting=false;
+                });
+            } else if (step === 10) {
+                clearInterval(interval);
+                resolve();
+            } else {
+                step += 1;
+            }
+        }, 10);
+    });
+}
+
+/**
  * Step 1. Load a blank text document
  * Step 2. Load a new editor window for that document
  * Step 3. Set the blank document content to a test string
@@ -30,155 +79,64 @@ function clearCurrentDocument() {
  */
 suite("Selection Replacement Tests", () => {
 	test("Replaces Selection With Line Numbers", (done) => {
-        let step = 0;
-        let globalDocument = null;
-        let globalEditor = null;
-        let timeout = null;
-        let waiting = false;
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
 
-        timeout = setInterval(() => {
-            if (waiting) return null;
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 0),
+                    new vscode.Selection(4, 0, 4, 0),
+                ];
+                replaceLine().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), '1first\nsecond\nthird\nfourth\n5fifth\nsixth');
 
-            if (step === 0) {
-                waiting = true;
-                vscode.workspace.openTextDocument().then((document) => {
-                    step += 1;
-                    globalDocument = document;
-                    waiting = false;
-                }, (error) => { assert.fail(error);done(); });
-            } else if (step === 1) {
-                waiting = true;
-                vscode.window.showTextDocument(globalDocument).then(editor => {
-                    step += 1;
-                    globalEditor = editor;
-                    waiting=false;
-                });
-            } else if (step === 2) {
-                clearInterval(timeout);
-
-                globalEditor.edit(editBuilder => {
-                    editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
-                }).then(wasEdited => {
-                    const innerEditor = vscode.window.activeTextEditor;
-                    innerEditor.selections = [
-                        new vscode.Selection(0, 0, 0, 0),
-                        new vscode.Selection(4, 0, 4, 0),
-                    ];
-                    assert.equal(globalDocument.getText(), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
-                    replaceLine().then(wasReplaced => {
-                        assert.equal(globalDocument.getText(), '1first\nsecond\nthird\nfourth\n5fifth\nsixth');
-
-                        done();
-                    }, (error) => { assert.fail(error);done(); });
-                }, (error) => { assert.fail(error);done(); });
-            }
-        }, 10);
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
 	});
 
     test("Replaces Selection With Cursor Numbers", (done) => {
-        let step = 0;
-        let globalDocument = null;
-        let globalEditor = null;
-        let timeout = null;
-        let waiting = false;
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
 
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 0),
+                    new vscode.Selection(4, 0, 4, 0),
+                ];
+                replaceCursorIndex().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), '0first\nsecond\nthird\nfourth\n1fifth\nsixth');
 
-        timeout = setInterval(() => {
-            if (waiting) return null;
-
-            if (step === 0) {
-                waiting = true;
-                vscode.workspace.openTextDocument().then((document) => {
-                    step += 1;
-                    globalDocument = document;
-                    waiting = false;
-                }, (error) => { assert.fail(error);done(); });
-            } else if (step === 1) {
-                waiting = true;
-                vscode.window.showTextDocument(globalDocument).then(editor => {
-                    step += 1;
-                    globalEditor = editor;
-                    waiting=false;
-                });
-            } else if (step === 2) {
-                waiting = true;
-                clearCurrentDocument().then(() => {
-                    step += 1;
-                    waiting = false;
-                });
-            } else if (step === 3) {
-                clearInterval(timeout);
-
-                globalEditor.edit(editBuilder => {
-                    editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
-                }).then(wasEdited => {
-                    const innerEditor = vscode.window.activeTextEditor;
-                    innerEditor.selections = [
-                        new vscode.Selection(0, 0, 0, 0),
-                        new vscode.Selection(4, 0, 4, 0),
-                    ];
-                    assert.equal(globalDocument.getText(), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
-                    replaceCursorIndex().then(wasReplaced => {
-                        assert.equal(globalDocument.getText(), '0first\nsecond\nthird\nfourth\n1fifth\nsixth');
-
-                        done();
-                    }, (error) => { assert.fail(error);done(); });
-                }, (error) => { assert.fail(error);done(); });
-            }
-        }, 10);
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
 	});
+
 
     test("Replaces Selection With Evaluated JS", (done) => {
-        let step = 0;
-        let globalDocument = null;
-        let globalEditor = null;
-        let timeout = null;
-        let waiting = false;
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
 
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), '1+2+3\n2*2\n"a".repeat(3)');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 5),
+                    new vscode.Selection(1, 0, 1, 3),
+                    new vscode.Selection(2, 0, 2, 13),
+                ];
+                replaceEval().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), '6\n4\naaa');
 
-        timeout = setInterval(() => {
-            if (waiting) return null;
-
-            if (step === 0) {
-                waiting = true;
-                vscode.workspace.openTextDocument().then((document) => {
-                    step += 1;
-                    globalDocument = document;
-                    waiting = false;
-                }, (error) => { assert.fail(error);done(); });
-            } else if (step === 1) {
-                waiting = true;
-                vscode.window.showTextDocument(globalDocument).then(editor => {
-                    step += 1;
-                    globalEditor = editor;
-                    waiting=false;
-                });
-            } else if (step === 2) {
-                waiting = true;
-                clearCurrentDocument().then(() => {
-                    step += 1;
-                    waiting = false;
-                });
-            } else if (step === 3) {
-                clearInterval(timeout);
-
-                globalEditor.edit(editBuilder => {
-                    editBuilder.insert(new vscode.Position(0, 0), '1+2+3\n2*2\n"a".repeat(3)');
-                }).then(wasEdited => {
-                    const innerEditor = vscode.window.activeTextEditor;
-                    innerEditor.selections = [
-                        new vscode.Selection(0, 0, 0, 5),
-                        new vscode.Selection(1, 0, 1, 3),
-                        new vscode.Selection(2, 0, 2, 13),
-                    ];
-                    assert.equal(globalDocument.getText(), '1+2+3\n2*2\n"a".repeat(3)');
-                    replaceEval().then(wasReplaced => {
-                        assert.equal(globalDocument.getText(), '6\n4\naaa');
-
-                        done();
-                    }, (error) => { assert.fail(error);done(); });
-                }, (error) => { assert.fail(error);done(); });
-            }
-        }, 10);
-	});
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
 });
