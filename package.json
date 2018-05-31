@@ -1,0 +1,40 @@
+{
+    "name": "replace-selection",
+    "displayName": "Replace Selection",
+    "description": "Replace selection with either the line number or cursor number",
+    "version": "0.0.1",
+    "publisher": "nexusoft",
+    "engines": {
+        "vscode": "^1.23.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.replace_line",
+        "onCommand:extension.replace_cursor_index"
+    ],
+    "main": "./extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.replace_line",
+                "title": "Replace With Line Number"
+            }, {
+                "command": "extension.replace_cursor_index",
+                "title": "Replace With Current Cursor Index"
+            }
+        ]
+    },
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "eslint": "^4.11.0",
+        "@types/node": "^7.0.43",
+        "@types/mocha": "^2.2.42"
+    }
+}
