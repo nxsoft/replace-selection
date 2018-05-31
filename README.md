@@ -16,12 +16,19 @@ Open your command window _(default shift + command + p on osx, ctrl + shift + p 
 `Replace With Line Number`
  * Replace the current selection with the current line number, 1 indexed, because line numbers follow false gods
 
-## Features
-
 ![Selection Line Number Replacement](resources/showcase_lines.gif)
+
+`Replace With Evaluated Javascript Result`
+ * Replace the current selection with the evaluated javascript result, eg 1 + 1 becomes 2
+
+![Selection Javascript Evaluation Replacement](resources/showcase_eval.gif)
 
 ## Release Notes
 
 ### 0.0.1
 
 Initial release, working line and cursor replacements
+
+### 0.0.4
+
+Added `Replace With Evaluated Javascript Result` as a command, simply replaces the current selection with its evaluated results
