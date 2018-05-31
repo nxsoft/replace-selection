@@ -2,11 +2,11 @@
     "name": "replace-selection",
     "displayName": "Replace Selection",
     "description": "Replace selection with either the line number or cursor number",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "nexusoft",
     "repository": {
         "type": "git",
-        "url": "https://nexusoft.visualstudio.com/replace-selection/_git/replace-selection"
+        "url": "https://github.com/nxsoft/replace-selection.git"
     },
     "engines": {
         "vscode": "^1.23.0"
@@ -24,7 +24,8 @@
             {
                 "command": "extension.replace_line",
                 "title": "Replace With Line Number"
-            }, {
+            },
+            {
                 "command": "extension.replace_cursor_index",
                 "title": "Replace With Current Cursor Index"
             }
