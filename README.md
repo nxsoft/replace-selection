@@ -8,7 +8,7 @@ Describe specific features of your extension including screenshots of your exten
 
 For example if there is an image subfolder under your extension project workspace:
 
-\!\[Selection Line Number Replacement\]\(resources/showcase_lines.gif\)
+![Selection Line Number Replacement](resources/showcase_lines.gif)
 
 ## Release Notes
 

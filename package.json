@@ -4,6 +4,10 @@
     "description": "Replace selection with either the line number or cursor number",
     "version": "0.0.1",
     "publisher": "nexusoft",
+    "repository": {
+        "type": "git",
+        "url": "https://nexusoft.visualstudio.com/replace-selection/_git/replace-selection"
+    },
     "engines": {
         "vscode": "^1.23.0"
     },
