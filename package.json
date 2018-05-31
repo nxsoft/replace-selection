@@ -1,7 +1,7 @@
 {
     "name": "replace-selection",
     "displayName": "Replace Selection",
-    "description": "Replace selection with either the line number or cursor number",
+    "description": "Replace selection with line number, cursor number, or evaluated javascript",
     "version": "0.0.3",
     "publisher": "nexusoft",
     "repository": {
@@ -16,6 +16,7 @@
     ],
     "activationEvents": [
         "onCommand:extension.replace_line",
+        "onCommand:extension.replace_eval",
         "onCommand:extension.replace_cursor_index"
     ],
     "main": "./extension",
@@ -24,6 +25,10 @@
             {
                 "command": "extension.replace_line",
                 "title": "Replace With Line Number"
+            },
+            {
+                "command": "extension.replace_eval",
+                "title": "Replace With Evaluated Javascript Result"
             },
             {
                 "command": "extension.replace_cursor_index",
