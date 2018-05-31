@@ -1,15 +1,18 @@
 const assert = require('assert');
 const vscode = require('vscode');
-
 const extension = require('../extension');
-
 const replaceCursorIndex = extension.replaceCursorIndex;
 const replaceLine = extension.replaceLine;
-
 
 /**
  * This is ugly AF, but unfortunately nesting these statements in a .then() chain fails. This
  * nasty work around is indeed nasty, I'm sorry you have to see it.
+ * Step 1. Load a blank text document
+ * Step 2. Load a new editor window for that document
+ * Step 3. Set the blank document content to a test string
+ * Step 4. Select some text using multiple cursors in the editor window
+ * Step 5. Execute extension code to replace selections with line numbers
+ * Step 6. Assert replacement was successful
  */
 suite("Selection Replacement Tests", () => {
 	test("Replaces Selection With Line Numbers", (done) => {
@@ -18,7 +21,6 @@ suite("Selection Replacement Tests", () => {
         let globalEditor = null;
         let timeout = null;
         let waiting = false;
-
 
         timeout = setInterval(() => {
             if (waiting) return null;
