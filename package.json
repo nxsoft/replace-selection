@@ -2,7 +2,7 @@
     "name": "replace-selection",
     "displayName": "Replace Selection",
     "description": "Replace selection with either the line number or cursor number",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "nexusoft",
     "repository": {
         "type": "git",
