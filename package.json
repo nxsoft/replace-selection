@@ -2,7 +2,7 @@
     "name": "replace-selection",
     "displayName": "Replace Selection",
     "description": "Replace selection with line number, cursor number, hex, or evaluated javascript. Rotate or swap selections",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "publisher": "nexusoft",
     "repository": {
         "type": "git",
