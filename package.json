@@ -17,7 +17,12 @@
     "activationEvents": [
         "onCommand:extension.replace_line",
         "onCommand:extension.replace_eval",
-        "onCommand:extension.replace_cursor_index"
+        "onCommand:extension.replace_cursor_index",
+        "onCommand:extension.rotate_right",
+        "onCommand:extension.rotate_left",
+        "onCommand:extension.swap",
+        "onCommand:extension.hexify",
+        "onCommand:extension.dehexify"
     ],
     "main": "./extension",
     "contributes": {
@@ -35,7 +40,7 @@
                 "title": "Replace With Current Cursor Index"
             },
             {
-                "command": "extension.rotate_ight",
+                "command": "extension.rotate_right",
                 "title": "Rotate Right Content of Selections"
             },
             {
