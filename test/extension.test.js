@@ -4,6 +4,11 @@ const extension = require('../extension');
 const replaceCursorIndex = extension.replaceCursorIndex;
 const replaceLine = extension.replaceLine;
 const replaceEval = extension.replaceEval;
+const rotateRight = extension.rotateRight;
+const rotateLeft = extension.rotateLeft;
+const swap = extension.swap;
+const hexify = extension.hexify;
+const dehexify = extension.dehexify;
 
 function clearCurrentDocument() {
     return vscode.window.activeTextEditor.edit(editBuilder => {
@@ -133,6 +138,107 @@ suite("Selection Replacement Tests", () => {
                 ];
                 replaceEval().then(wasReplaced => {
                     assert.equal(editor.document.getText(), '6\n4\naaa');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+    
+    test("Rotates multicursor selection content right", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 5),
+                    new vscode.Selection(4, 0, 4, 5),
+                    new vscode.Selection(5, 0, 5, 5),
+                ];
+                rotateRight().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'sixth\nsecond\nthird\nfourth\nfirst\nfifth');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+    
+    test("Rotates multicursor selection content left", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 5),
+                    new vscode.Selection(4, 0, 4, 5),
+                    new vscode.Selection(5, 0, 5, 5),
+                ];
+                rotateLeft().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'fifth\nsecond\nthird\nfourth\nsixth\nfirst');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+
+    test("Swaps multicursor selection content", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'first\nsecond\nthird\nfourth\nfifth\nsixth');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 5),
+                    new vscode.Selection(4, 0, 4, 5),
+                    new vscode.Selection(5, 0, 5, 5),
+                ];
+                swap().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'sixth\nsecond\nthird\nfourth\nfifth\nfirst');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+
+    test("Replaces with hex", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'hexstring');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 9),
+                ];
+                hexify().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), '686578737472696e67');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+    
+    test("Replaces hex with normal string", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), '736e6f776d616e');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 14),
+                ];
+                dehexify().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'snowman');
 
                     done();
                 }, done);

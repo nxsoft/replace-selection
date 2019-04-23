@@ -33,6 +33,26 @@
             {
                 "command": "extension.replace_cursor_index",
                 "title": "Replace With Current Cursor Index"
+            },
+            {
+                "command": "extension.rotate_ight",
+                "title": "Rotate Right Content of Selections"
+            },
+            {
+                "command": "extension.rotate_left",
+                "title": "Rotate Left Content of Selections"
+            },
+            {
+                "command": "extension.swap",
+                "title": "Swap Content of Selections"
+            },
+            {
+                "command": "extension.hexify",
+                "title": "String to Hex"
+            },
+            {
+                "command": "extension.dehexify",
+                "title": "Hex to String"
             }
         ]
     },
