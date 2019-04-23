@@ -23,6 +23,21 @@ Open your command window _(default shift + command + p on osx, ctrl + shift + p 
 
 ![Selection Javascript Evaluation Replacement](resources/showcase_eval.gif)
 
+`Rotate Right Content of Selections`: 
+ * When multiple selections are active, copies the first into the second, the second into the third, the fourth into the fifth, and so on, the final selection is placed into the first selection
+
+`Rotate Left Content of Selections`: 
+ * When multiple selections are active, does the opposite of rotate right, the last moves left, the first moves to the last
+
+`Swap Content of Selections`: 
+ * Swaps two or more selections, if you have selected two strings 'sally' and 'bob' the content 'bob' becomes 'sally', and 'sally' becomes 'bob'
+
+`String to Hex`: 
+ * Replace each character with the equivalent hex value
+
+`Hex to String`: 
+ * Replace a string that is already in hex with the normal string value of it
+
 ## Release Notes
 
 ### 0.0.1
@@ -32,3 +47,12 @@ Initial release, working line and cursor replacements
 ### 0.0.4
 
 Added `Replace With Evaluated Javascript Result` as a command, simply replaces the current selection with its evaluated results
+
+### 0.0.6
+
+Added:
+ * `Rotate Right Content of Selections`
+ * `Rotate Left Content of Selections`
+ * `Swap Content of Selections`
+ * `String to Hex`
+ * `Hex to String`
