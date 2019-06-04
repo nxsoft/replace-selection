@@ -8,6 +8,7 @@ const rotateRight = extension.rotateRight;
 const rotateLeft = extension.rotateLeft;
 const swap = extension.swap;
 const swapCommentContent = extension.swapCommentContent;
+const swapCommentStringSmarter = extension.swapCommentStringSmarter;
 const hexify = extension.hexify;
 const dehexify = extension.dehexify;
 
@@ -226,6 +227,19 @@ suite("Selection Replacement Tests", () => {
                 }, done);
             }, done);
         }).catch(done);
+    });
+
+    test("Comment replacement works on hard strings", () => {
+        swapCommentStringSmarter("const baseUrl = 'https://website.com';//const baseUrl = 'http://localhost:8080';", "const baseUrl = 'https://website.com';//const baseUrl = 'http://localhost:8080';");
+        swapCommentStringSmarter('hello', 'hello');
+        swapCommentStringSmarter('//hello', 'hello');
+        swapCommentStringSmarter('"//hello"', '// "//hello"');
+        swapCommentStringSmarter('`//hello`', '// `//hello`');
+        swapCommentStringSmarter("'//hello'", "// '//hello'");
+        swapCommentStringSmarter('"\\"//hello"', '// "\\"//hello"');
+        swapCommentStringSmarter('`\\`//hello`', '// `\\`//hello`');
+        swapCommentStringSmarter("'\\'//hello'", "// '\\'//hello'");
+        swapCommentStringSmarter('hello // world', 'world // world');
     });
 
     test("Replaces with hex", (done) => {

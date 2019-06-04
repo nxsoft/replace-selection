@@ -80,6 +80,56 @@ function swapCommentString(commentString) {
     return replacer[2] + ' // ' + replacer[1];
 }
 
+function swapCommentStringSmarter(commentString) {
+    const state = {};
+    for (let dex = 0; dex < commentString.length; dex += 1) {
+        const char = commentString[dex];
+        if (char === '"') {
+            if (state.inDoubleQuote) {
+                if (!state.inBackSlash) {
+                    state.inDoubleQuote = false; 
+                }
+            } else if (!state.inSingleQuote && !state.inBackTick && !state.inBlockComment) {
+                state.inDoubleQuote = true;
+            }
+        } 
+        if (char === "'") {
+            if (state.inSingleQuote) {
+                if (!state.inBackSlash) {
+                    state.inSingleQuote = false; 
+                }
+            } else if (!state.inDoubleQuote && !state.inBackTick && !state.inBlockComment) {
+                state.inSingleQuote = true;
+            }
+        } 
+        if (char === "`") {
+            if (state.inBackTick) {
+                if (!state.inBackSlash) {
+                    state.inBackTick = false; 
+                }
+            } else if (!state.inDoubleQuote && !state.inSingleQuote && !state.inBlockComment) {
+                state.inBackTick = true;
+            }
+        }
+        if (char === '\\' && (state.inDoubleQuote || state.inSingleQuote || state.inBackTick)) {
+            state.inBackSlash = true;
+        } else {
+            state.inBackSlash = false;
+        }
+        if (char === '/' && (!state.inDoubleQuote && !state.inSingleQuote && !state.inBackTick && !state.inBackSlash && !state.inBlockComment)) {
+            if (state.lastForwardSlash === dex - 1) {
+                const first = commentString.slice(dex + 1).trim();
+                const second = commentString.slice(0, state.lastForwardSlash).trim();
+                if (second.length === 0) return first;
+                return first + ' // ' + second;
+            }
+            state.lastForwardSlash = dex;
+        }
+    }
+
+    return '// ' + commentString;
+}
+
 function swapCommentContent() {
     const editor = vscode.window.activeTextEditor;
     const selections = editor.selections;
@@ -90,10 +140,10 @@ function swapCommentContent() {
             const selection = selections[dex];
             if (selection.start.isEqual(selection.end)) {
                 const line = editor.document.lineAt(selections[dex].start.line);
-                editBuilder.replace(line.range, swapCommentString(line.text));
+                editBuilder.replace(line.range, swapCommentStringSmarter(line.text));
             } else {
                 const fromValue = editor.document.getText(selection);
-                editBuilder.replace(selection, swapCommentString(fromValue));
+                editBuilder.replace(selection, swapCommentStringSmarter(fromValue));
             }
         }
     });
@@ -159,5 +209,6 @@ exports.rotateLeft = rotateLeft;
 exports.rotateRight = rotateRight;
 exports.swap = swap;
 exports.swapCommentContent = swapCommentContent;
+exports.swapCommentStringSmarter = swapCommentStringSmarter;
 exports.hexify = hexify;
 exports.dehexify = dehexify;
