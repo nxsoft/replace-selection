@@ -7,6 +7,7 @@ const replaceEval = extension.replaceEval;
 const rotateRight = extension.rotateRight;
 const rotateLeft = extension.rotateLeft;
 const swap = extension.swap;
+const swapCommentContent = extension.swapCommentContent;
 const hexify = extension.hexify;
 const dehexify = extension.dehexify;
 
@@ -201,6 +202,25 @@ suite("Selection Replacement Tests", () => {
                 ];
                 swap().then(wasReplaced => {
                     assert.equal(editor.document.getText(), 'sixth\nsecond\nthird\nfourth\nfifth\nfirst');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+    
+    test("Swaps content with comment", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'const this = that; // const that = this;');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 0),
+                ];
+                swapCommentContent().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'const that = this; // const this = that;');
 
                     done();
                 }, done);

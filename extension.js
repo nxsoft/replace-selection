@@ -74,6 +74,31 @@ function swap() {
     });
 }
 
+function swapCommentString(commentString) {
+    const replacer = commentString.match(/^(.*?)\s*\/\/\s*(.*)$/);
+    if (!replacer) return '// ' + commentString;
+    return replacer[2] + ' // ' + replacer[1];
+}
+
+function swapCommentContent() {
+    const editor = vscode.window.activeTextEditor;
+    const selections = editor.selections;
+    if (selections.length === 0) return undefined;
+
+    return editor.edit(editBuilder => {
+        for (let dex = 0; dex < selections.length; dex += 1) {
+            const selection = selections[dex];
+            if (selection.start.isEqual(selection.end)) {
+                const line = editor.document.lineAt(selections[dex].start.line);
+                editBuilder.replace(line.range, swapCommentString(line.text));
+            } else {
+                const fromValue = editor.document.getText(selection);
+                editBuilder.replace(selection, swapCommentString(fromValue));
+            }
+        }
+    });
+}
+
 function rotateLeft() {
     const editor = vscode.window.activeTextEditor;
     const selections = editor.selections;
@@ -118,6 +143,7 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('extension.rotate_left', rotateLeft));
     context.subscriptions.push(vscode.commands.registerCommand('extension.rotate_right', rotateRight));
     context.subscriptions.push(vscode.commands.registerCommand('extension.swap', swap));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.swap_comment', swapCommentContent));
     context.subscriptions.push(vscode.commands.registerCommand('extension.hexify', hexify));
     context.subscriptions.push(vscode.commands.registerCommand('extension.dehexify', dehexify));
 }
@@ -132,5 +158,6 @@ exports.replaceEval = replaceEval;
 exports.rotateLeft = rotateLeft;
 exports.rotateRight = rotateRight;
 exports.swap = swap;
+exports.swapCommentContent = swapCommentContent;
 exports.hexify = hexify;
 exports.dehexify = dehexify;

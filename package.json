@@ -2,7 +2,7 @@
     "name": "replace-selection",
     "displayName": "Replace Selection",
     "description": "Replace selection with line number, cursor number, hex, or evaluated javascript. Rotate or swap selections",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "publisher": "nexusoft",
     "repository": {
         "type": "git",
@@ -21,6 +21,7 @@
         "onCommand:extension.rotate_right",
         "onCommand:extension.rotate_left",
         "onCommand:extension.swap",
+        "onCommand:extension.swap_comment",
         "onCommand:extension.hexify",
         "onCommand:extension.dehexify"
     ],
@@ -50,6 +51,10 @@
             {
                 "command": "extension.swap",
                 "title": "Swap"
+            },
+            {
+                "command": "extension.swap_comment",
+                "title": "Swap Comment"
             },
             {
                 "command": "extension.hexify",
