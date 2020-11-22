@@ -2,7 +2,7 @@
     "name": "replace-selection",
     "displayName": "Replace Selection",
     "description": "Replace selection with line number, cursor number, hex, or evaluated javascript. Rotate or swap selections",
-    "version": "0.0.8",
+    "version": "0.0.10",
     "publisher": "nexusoft",
     "repository": {
         "type": "git",
@@ -23,7 +23,12 @@
         "onCommand:extension.swap",
         "onCommand:extension.swap_comment",
         "onCommand:extension.hexify",
-        "onCommand:extension.dehexify"
+        "onCommand:extension.dehexify",
+        "onCommand:extension.replace_snake",
+        "onCommand:extension.replaceCamel",
+        "onCommand:extension.ReplaceUpperCamel",
+        "onCommand:extension.replace_even_spacing",
+        "onCommand:extension.add_padding_to_selection"
     ],
     "main": "./extension",
     "contributes": {
@@ -63,6 +68,26 @@
             {
                 "command": "extension.dehexify",
                 "title": "Dehexify"
+            },
+            {
+                "command": "extension.replace_snake",
+                "title": "Replace with snake case"
+            },
+            {
+                "command": "extension.replaceCamel",
+                "title": "Replace with lower camel case"
+            },
+            {
+                "command": "extension.ReplaceUpperCamel",
+                "title": "Replace with upper camel case"
+            },
+            {
+                "command": "extension.replace_even_spacing",
+                "title": "Remove excess spaces"
+            },
+            {
+                "command": "extension.add_padding_to_selection",
+                "title": "Pad selection with spaces"
             }
         ]
     },

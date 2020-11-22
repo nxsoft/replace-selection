@@ -4,6 +4,7 @@ const extension = require('../extension');
 const replaceCursorIndex = extension.replaceCursorIndex;
 const replaceLine = extension.replaceLine;
 const replaceEval = extension.replaceEval;
+const replaceSnake = extension.replaceSnake;
 const rotateRight = extension.rotateRight;
 const rotateLeft = extension.rotateLeft;
 const swap = extension.swap;
@@ -146,7 +147,7 @@ suite("Selection Replacement Tests", () => {
             }, done);
         }).catch(done);
     });
-    
+
     test("Rotates multicursor selection content right", (done) => {
         setupEditorForTest().then(() => {
             const editor = vscode.window.activeTextEditor;
@@ -167,7 +168,7 @@ suite("Selection Replacement Tests", () => {
             }, done);
         }).catch(done);
     });
-    
+
     test("Rotates multicursor selection content left", (done) => {
         setupEditorForTest().then(() => {
             const editor = vscode.window.activeTextEditor;
@@ -209,7 +210,7 @@ suite("Selection Replacement Tests", () => {
             }, done);
         }).catch(done);
     });
-    
+
     test("Swaps content with comment", (done) => {
         setupEditorForTest().then(() => {
             const editor = vscode.window.activeTextEditor;
@@ -260,7 +261,26 @@ suite("Selection Replacement Tests", () => {
             }, done);
         }).catch(done);
     });
-    
+
+    test("Replaces with snake case", (done) => {
+        setupEditorForTest().then(() => {
+            const editor = vscode.window.activeTextEditor;
+
+            editor.edit(editBuilder => {
+                editBuilder.insert(new vscode.Position(0, 0), 'thisStringHere');
+            }).then(() => {
+                editor.selections = [
+                    new vscode.Selection(0, 0, 0, 13),
+                ];
+                replaceSnake().then(wasReplaced => {
+                    assert.equal(editor.document.getText(), 'this_string_here');
+
+                    done();
+                }, done);
+            }, done);
+        }).catch(done);
+    });
+
     test("Replaces hex with normal string", (done) => {
         setupEditorForTest().then(() => {
             const editor = vscode.window.activeTextEditor;

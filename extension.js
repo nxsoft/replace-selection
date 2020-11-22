@@ -87,25 +87,25 @@ function swapCommentStringSmarter(commentString) {
         if (char === '"') {
             if (state.inDoubleQuote) {
                 if (!state.inBackSlash) {
-                    state.inDoubleQuote = false; 
+                    state.inDoubleQuote = false;
                 }
             } else if (!state.inSingleQuote && !state.inBackTick && !state.inBlockComment) {
                 state.inDoubleQuote = true;
             }
-        } 
+        }
         if (char === "'") {
             if (state.inSingleQuote) {
                 if (!state.inBackSlash) {
-                    state.inSingleQuote = false; 
+                    state.inSingleQuote = false;
                 }
             } else if (!state.inDoubleQuote && !state.inBackTick && !state.inBlockComment) {
                 state.inSingleQuote = true;
             }
-        } 
+        }
         if (char === "`") {
             if (state.inBackTick) {
                 if (!state.inBackSlash) {
-                    state.inBackTick = false; 
+                    state.inBackTick = false;
                 }
             } else if (!state.inDoubleQuote && !state.inSingleQuote && !state.inBlockComment) {
                 state.inBackTick = true;
@@ -165,11 +165,70 @@ function rotateLeft() {
 }
 
 const replaceCursorIndex = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
-    editBuilder.replace(selection, '' + dex);
+    return editBuilder.replace(selection, '' + dex);
+});
+
+function replaceCasing(input, caseReplaceFunction) {
+    const separatorRegex = new RegExp(/(\w)[-_](\w)/g);
+    const capsRegex = new RegExp(/([a-z])([A-Z])/g);
+    let replaced = input;
+    let nth = 0;
+    replaced = replaced.replace(separatorRegex, (match, firstCapture, secondCapture) => {
+        const result = caseReplaceFunction(firstCapture, secondCapture, nth);
+        nth += 1;
+        return result;
+    });
+    replaced = replaced.replace(capsRegex, (match, firstCapture, secondCapture) => {
+        const result = caseReplaceFunction(firstCapture, secondCapture, nth);
+        nth += 1;
+        return result;
+    });
+    return replaced;
+}
+
+function replaceCasingWithSeparator(input, separator) {
+    return replaceCasing(input, (first, second) => {
+        return first.toLowerCase() + separator + second.toLowerCase();
+    });
+}
+
+function replaceCasingWithCamel(input, firstAsWell) {
+    const replaced = replaceCasing(input, (first, second, dex) => {
+        return first.toLowerCase() + second.toUpperCase();
+    });
+    if (firstAsWell) {
+        return replaced.slice(0, 1).toUpperCase() + replaced.slice(1);
+    }
+    return replaced;
+}
+
+const replaceSnake = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
+    const currentValue = editor.document.getText(selection);
+    return editBuilder.replace(selection, replaceCasingWithSeparator(currentValue, '_'));
+});
+
+const replaceCamel = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
+    const currentValue = editor.document.getText(selection);
+    return editBuilder.replace(selection, replaceCasingWithCamel(currentValue, false));
+});
+
+const replaceUpperCamel = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
+    const currentValue = editor.document.getText(selection);
+    return editBuilder.replace(selection, replaceCasingWithCamel(currentValue, true));
+});
+
+const replaceEvenSpacing = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
+    const currentValue = editor.document.getText(selection);
+    return editBuilder.replace(selection, currentValue.replace(/([^\s])\s\s+/g, '$1 '));
+});
+
+const replaceAddPadding = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
+    const currentValue = editor.document.getText(selection);
+    return editBuilder.replace(selection, ` ${currentValue} `);
 });
 
 const replaceLine = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
-    editBuilder.replace(selection, '' + (selection.start.line + 1));
+    return editBuilder.replace(selection, '' + (selection.start.line + 1));
 });
 
 const replaceEval = selectionReplaceFunctionCreator((editBuilder, editor, selection, dex) => {
@@ -196,6 +255,11 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('extension.swap_comment', swapCommentContent));
     context.subscriptions.push(vscode.commands.registerCommand('extension.hexify', hexify));
     context.subscriptions.push(vscode.commands.registerCommand('extension.dehexify', dehexify));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.replace_snake', replaceSnake));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.replaceCamel', replaceCamel));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.ReplaceUpperCamel', replaceUpperCamel));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.replace_even_spacing', replaceEvenSpacing));
+    context.subscriptions.push(vscode.commands.registerCommand('extension.add_padding_to_selection', replaceAddPadding));
 }
 
 function deactivate() {}
@@ -212,3 +276,8 @@ exports.swapCommentContent = swapCommentContent;
 exports.swapCommentStringSmarter = swapCommentStringSmarter;
 exports.hexify = hexify;
 exports.dehexify = dehexify;
+exports.replaceSnake = replaceSnake;
+exports.replaceCamel = replaceCamel;
+exports.replaceUpperCamel = replaceUpperCamel;
+exports.replaceEvenSpacing = replaceEvenSpacing;
+exports.replaceAddPadding = replaceAddPadding;
